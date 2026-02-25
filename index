@@ -1,0 +1,197 @@
+<style>/* Configuração para a impressora entender que é paisagem */
+  @page {
+    size: A4 landscape;
+    margin: 0; /* Remove as margens padrão do navegador */
+  }
+  body {
+    font-family: 'Times New Roman', serif;
+    background-color: #525659; /* Fundo escuro para destacar a folha na tela */
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+  }
+  /* Container principal simulando a folha A4 em paisagem */
+  .folha-a4 {
+    background-color: #fff;
+    width: 29.7cm; /* Largura A4 paisagem */
+    height: 21cm;  /* Altura A4 paisagem */
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+  /* Cada metade da folha (uma receita) */
+  .receita-metade {
+    width: 50%;
+    height: 100%;
+    padding: 1.5cm; /* Margem interna de segurança para a impressora não cortar o texto */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Linha divisória no meio da página */
+  .linha-divisoria {
+    border-right: 1px dashed #000;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .header-logo {
+    max-width: 60px; /* Reduzido levemente para caber melhor na meia folha */
+    max-height: 60px; 
+    width: auto;
+    height: auto;
+    object-fit: contain; 
+    margin-right: 15px;
+  }
+  .header-info {
+    font-size: 0.8rem;
+  }
+  .header-info p {
+    margin: 2px 0;
+  }
+  .title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+  .field-row {
+    display: flex;
+    margin-bottom: 15px;
+  }
+  .field-label {
+    font-weight: bold;
+    margin-right: 10px;
+    align-self: flex-end;
+  }
+  .input-field {
+    border: none;
+    border-bottom: 1px solid #000; 
+    flex-grow: 1;
+    font-size: 1rem;
+    padding: 2px 5px;
+    background-color: transparent;
+  }
+  .input-field:focus {
+    outline: none;
+    border-bottom: 2px solid #555;
+  }
+  .prescription-area {
+    flex-grow: 1;
+    border: none; 
+    padding: 10px 0;
+    font-size: 1.1rem; /* Altere este valor para aumentar/diminuir a fonte da prescrição */
+    resize: vertical; 
+    margin-bottom: 20px;
+  }
+  .prescription-area:focus {
+    outline: none;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto; 
+  }
+  .date-box {
+    display: flex;
+    align-items: flex-end;
+  }
+  .signature-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .signature-line {
+    border-bottom: 1px solid #000;
+    width: 200px;
+    margin-bottom: 5px;
+  }
+  .signature-label {
+    font-size: 0.8rem;
+  }
+  .typewriter-font {
+    font-family: 'Courier New', Courier, monospace;
+  }
+  /* Oculta sombras e altera ajustes apenas na hora da impressão */
+  @media print {
+    body {
+      background-color: #fff;
+      padding: 0;
+    }
+    .folha-a4 {
+      box-shadow: none;
+      width: 100%;
+      height: 100%;
+    }
+    .prescription-area {
+      resize: none; 
+    }
+  }</style>
+<div class="folha-a4">
+  <div class="receita-metade linha-divisoria">
+    <div class="header">
+      <img class="header-logo" src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC">
+      <div class="header-info">
+        <p>
+          <strong>Universidade Federal de Santa Catarina</strong>
+        </p>
+        <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        <p>CEP: 88036-800 | Telefone: (48) 3721-9000</p>
+      </div>
+    </div>
+    <div class="title">RECEITA MÉDICA</div>
+    <div class="field-row">
+      <label class="field-label" for="nome1">Nome:</label> 
+      <input id="nome1" class="input-field typewriter-font" type="text" placeholder="Digite o nome...">
+    </div>
+    <textarea class="prescription-area typewriter-font" placeholder="Digite a prescrição médica aqui..."></textarea>
+    <div class="footer">
+      <div class="date-box">
+        <label class="field-label" for="data1">Data:</label> 
+        <input id="data1" class="input-field typewriter-font" style="width: 80px;" type="text" placeholder="  /  /  ">
+      </div>
+      <div class="signature-box">
+        <div class="signature-line">&nbsp;</div>
+        <span class="signature-label">Assinatura e carimbo</span>
+      </div>
+    </div>
+  </div>
+  <div class="receita-metade">
+    <div class="header">
+      <img class="header-logo" src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC">
+      <div class="header-info">
+        <p>
+          <strong>Universidade Federal de Santa Catarina</strong>
+        </p>
+        <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        <p>CEP: 88036-800 | Telefone: (48) 3721-9000</p>
+      </div>
+    </div>
+    <div class="title">RECEITA MÉDICA</div>
+    <div class="field-row">
+      <label class="field-label" for="nome2">Nome:</label> 
+      <input id="nome2" class="input-field typewriter-font" type="text" placeholder="Digite o nome...">
+    </div>
+    <textarea class="prescription-area typewriter-font" placeholder="Digite a prescrição médica aqui..."></textarea>
+    <div class="footer">
+      <div class="date-box">
+        <label class="field-label" for="data2">Data:</label> 
+        <input id="data2" class="input-field typewriter-font" style="width: 80px;" type="text" placeholder="  /  /  ">
+      </div>
+      <div class="signature-box">
+        <div class="signature-line">&nbsp;</div>
+        <span class="signature-label">Assinatura e carimbo</span>
+      </div>
+    </div>
+  </div>
+</div>
