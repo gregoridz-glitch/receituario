@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Formulários - UFSC</title>
+<style>
+  /* CONFIGURAÇÕES GERAIS E MENU (Não aparecem na impressão) */
+  body {
+    font-family: 'Times New Roman', serif;
+    background-color: #525659;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .no-print {
+    background-color: #333;
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .nav-btn {
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+  }
+
+  .nav-btn:hover { background-color: #777; }
+  .nav-btn.active { background-color: #0056b3; font-weight: bold; }
+
+  .print-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-left: 20px;
+  }
+  .print-btn:hover { background-color: #218838; }
+
+  /* CONTAINER DAS ABAS */
+  .tab-content {
+    display: none;
+    justify-content: center;
+    padding: 30px;
+  }
+
+  /* O QUE DEFINE A FOLHA A4 */
+  .folha-a4 {
+    background-color: #fff;
+    width: 29.7cm;
+    height: 21cm;
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  .receita-metade {
+    width: 50%;
+    height: 100%;
+    padding: 1.5cm 1.5cm 0.5cm 1.5cm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .receita-inteira {
+    width: 100%;
+    height: 100%;
+    padding: 2cm 2cm 0.5cm 2cm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .linha-divisoria { border-right: 1px dashed #000; }
+
+  /* CABEÇALHO */
+  .header { display: flex; align-items: center; margin-bottom: 12px; }
+  .header-logo {
+    max-width: 50px; max-height: 50px;
+    width: auto; height: auto;
+    object-fit: contain; margin-right: 12px;
+  }
+  .header-info { font-size: 0.68rem; line-height: 1.2; }
+  .header-info p { margin: 0; }
+
+  /* TÍTULOS E CAMPOS */
+  .title {
+    text-align: center; font-weight: bold; font-size: 0.95rem;
+    text-transform: uppercase; border-bottom: 2px solid #000;
+    padding-bottom: 4px; margin-top: 5px; margin-bottom: 12px;
+  }
+
+  .field-row { display: flex; margin-bottom: 8px; align-items: flex-end; }
+  .field-label { font-weight: bold; margin-right: 5px; font-size: 0.78rem; white-space: nowrap; }
+
+  .input-field {
+    border: none; border-bottom: 1px solid #000;
+    flex-grow: 1; font-size: 0.82rem; padding: 2px 5px;
+    background-color: transparent; font-family: 'Courier New', Courier, monospace;
+  }
+  .input-field:focus { outline: none; border-bottom: 2px solid #555; }
+
+  .prescription-area {
+    flex-grow: 1; border: none; padding: 8px 0;
+    font-size: 0.95rem; resize: none; margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .prescription-area:focus { outline: none; }
+
+  /* BLOCOS ESPECÍFICOS PARA CONTROLE ESPECIAL */
+  .boxes-wrapper {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 35px;
+  }
+  .info-box {
+    border: 1px solid #000;
+    padding: 5px;
+    font-size: 0.62rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+  .info-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.62rem;
+    margin-bottom: 3px;
+  }
+  .info-row {
+    display: flex;
+    gap: 5px;
+    align-items: flex-end;
+  }
+  .info-row .field-label { font-size: 0.62rem; }
+  .info-row .input-field { font-size: 0.68rem; padding: 1px; }
+
+  /* RODAPÉ E ASSINATURA */
+  .footer {
+    display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;
+  }
+  .date-box { display: flex; align-items: flex-end; }
+  .signature-box { display: flex; flex-direction: column; align-items: center; }
+  .signature-line { border-bottom: 1px solid #000; width: 180px; margin-bottom: 5px; }
+  .signature-label { font-size: 0.72rem; }
+
+  /* CONFIGURAÇÕES DE IMPRESSÃO */
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  @media print {
+    html, body {
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      width: 29.7cm;
+      height: 21cm;
+    }
+    .no-print { display: none !important; }
+    .tab-content { padding: 0 !important; margin: 0 !important; display: none !important; }
+
+    .tab-content[style*="display: flex"] { display: flex !important; }
+
+    .folha-a4 {
+      box-shadow: none;
+      width: 29.7cm !important;
+      height: 21cm !important;
+      margin: 0;
+      padding: 0;
+      page-break-inside: avoid;
+    }
+
+    .input-field::placeholder, .prescription-area::placeholder { color: transparent; }
+    .prescription-area { overflow: hidden; }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="nav-btn active" onclick="openTab(event, 'tab-simples')">Receita Simples</button>
+  <button class="nav-btn" onclick="openTab(event, 'tab-especial')">Controle Especial</button>
+  <button class="nav-btn" onclick="openTab(event, 'tab-encaminhamento')">Encaminhamento</button>
+  <button class="nav-btn" onclick="openTab(event, 'tab-exames')">Exames</button>
+  <button class="nav-btn" onclick="openTab(event, 'tab-atestado')">Atestado Médico</button>
+  <button class="nav-btn" onclick="openTab(event, 'tab-relatorio')">Relatório Médico</button>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir Atual</button>
+</div>
+
+<div id="tab-simples" class="tab-content" style="display: flex;">
+  <div class="folha-a4">
+    <div class="receita-metade linha-divisoria">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+          <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        </div>
+      </div>
+      <div class="title">RECEITA MÉDICA</div>
+      <div class="field-row">
+        <label class="field-label">Nome:</label>
+        <input type="text" class="input-field" placeholder="Digite o nome...">
+      </div>
+      <textarea class="prescription-area" placeholder="Prescrição..."></textarea>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;" placeholder="  /  /  ">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+    <div class="receita-metade">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+          <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        </div>
+      </div>
+      <div class="title">RECEITA MÉDICA</div>
+      <div class="field-row">
+        <label class="field-label">Nome:</label>
+        <input type="text" class="input-field" placeholder="Digite o nome...">
+      </div>
+      <textarea class="prescription-area" placeholder="Prescrição..."></textarea>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;" placeholder="  /  /  ">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-especial" class="tab-content">
+  <div class="folha-a4">
+    <div class="receita-metade linha-divisoria">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+          <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        </div>
+      </div>
+      <div class="title">RECEITA DE CONTROLE ESPECIAL</div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+      </div>
+      <div class="field-row" style="margin-bottom: 15px;">
+        <label class="field-label">Endereço:</label>
+        <input type="text" class="input-field">
+      </div>
+
+      <textarea class="prescription-area" style="min-height: 120px;" placeholder="Prescrição..."></textarea>
+
+      <div class="boxes-wrapper">
+        <div class="info-box">
+          <div class="info-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+          <div class="info-row">
+            <label class="field-label">Nome:</label> <input type="text" class="input-field">
+          </div>
+          <div class="info-row">
+            <label class="field-label">Identidade:</label> <input type="text" class="input-field" style="width: 30%;">
+            <label class="field-label">Órgão/UF:</label> <input type="text" class="input-field">
+          </div>
+          <div class="info-row">
+            <label class="field-label">Endereço:</label> <input type="text" class="input-field">
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+          <div class="info-row" style="margin-top: 15px; justify-content: center;">
+            <div class="signature-line" style="width: 90%;"></div>
+          </div>
+          <div class="info-row" style="justify-content: center; margin-bottom: 5px;">
+            <span class="signature-label">Assinatura do Farmacêutico</span>
+          </div>
+          <div class="info-row">
+            <label class="field-label">Data:</label> <input type="text" class="input-field" placeholder="  /  /  ">
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;" placeholder="  /  /  ">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo do Médico</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="receita-metade">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+          <p>Rua Prof. Maria Flora Pausewang, s/n - Trindade, Florianópolis - SC</p>
+        </div>
+      </div>
+      <div class="title">RECEITA DE CONTROLE ESPECIAL</div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+      </div>
+      <div class="field-row" style="margin-bottom: 15px;">
+        <label class="field-label">Endereço:</label>
+        <input type="text" class="input-field">
+      </div>
+
+      <textarea class="prescription-area" style="min-height: 120px;" placeholder="Prescrição..."></textarea>
+
+      <div class="boxes-wrapper">
+        <div class="info-box">
+          <div class="info-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+          <div class="info-row">
+            <label class="field-label">Nome:</label> <input type="text" class="input-field">
+          </div>
+          <div class="info-row">
+            <label class="field-label">Identidade:</label> <input type="text" class="input-field" style="width: 30%;">
+            <label class="field-label">Órgão/UF:</label> <input type="text" class="input-field">
+          </div>
+          <div class="info-row">
+            <label class="field-label">Endereço:</label> <input type="text" class="input-field">
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+          <div class="info-row" style="margin-top: 15px; justify-content: center;">
+            <div class="signature-line" style="width: 90%;"></div>
+          </div>
+          <div class="info-row" style="justify-content: center; margin-bottom: 5px;">
+            <span class="signature-label">Assinatura do Farmacêutico</span>
+          </div>
+          <div class="info-row">
+            <label class="field-label">Data:</label> <input type="text" class="input-field" placeholder="  /  /  ">
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;" placeholder="  /  /  ">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo do Médico</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-encaminhamento" class="tab-content">
+  <div class="folha-a4">
+    <div class="receita-inteira">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        </div>
+      </div>
+      <div class="title">ENCAMINHAMENTO</div>
+      <div class="field-row">
+        <label class="field-label"> Especialidade:</label>
+        <input type="text" class="input-field">
+      </div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+      </div>
+      <label class="field-label" style="display: block; margin-top: 10px;">Histórico/Motivo do Encaminhamento:</label>
+      <textarea class="prescription-area" placeholder="Resumo clínico..."></textarea>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-exames" class="tab-content">
+  <div class="folha-a4">
+    <div class="receita-inteira">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        </div>
+      </div>
+      <div class="title">SOLICITAÇÃO DE EXAMES</div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+      </div>
+      <div class="field-row">
+        <label class="field-label">Indicação Clínica:</label>
+        <input type="text" class="input-field">
+      </div>
+      <label class="field-label" style="display: block; margin-top: 10px;">Exames Solicitados:</label>
+      <textarea class="prescription-area" placeholder="(ex. HC, EAS, ECG, RX de tórax...)">- Hemograma
+- Creatinina
+- Ureia
+- Sódio
+- Potássio
+- TGO
+- TGP
+- GGT
+- Fosfatase alcalina
+- Glicemia
+- Hemoglobina glicada
+- Parcial de urina</textarea>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-atestado" class="tab-content">
+  <div class="folha-a4">
+    <div class="receita-inteira">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        </div>
+      </div>
+      <div class="title">ATESTADO MÉDICO</div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+      </div>
+      <div class="field-row">
+        <label class="field-label">RG/CPF:</label>
+        <input type="text" class="input-field" style="max-width: 250px;">
+      </div>
+      <textarea class="prescription-area" style="font-size: 1rem; line-height: 1.8;">Atesto, para os devidos fins, que o(a) paciente acima identificado(a) esteve sob meus cuidados médicos nesta data, necessitando de ______ dia(s) de afastamento de suas atividades.</textarea>
+      <div class="field-row">
+        <label class="field-label">CID (opcional):</label>
+        <input type="text" class="input-field" style="max-width: 150px;">
+      </div>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Florianópolis,</label>
+          <input type="text" class="input-field" style="width: 110px;" placeholder="  /  /  ">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-relatorio" class="tab-content">
+  <div class="folha-a4">
+    <div class="receita-inteira">
+      <div class="header">
+        <img src="https://identidade.ufsc.br/files/2017/10/vertical_sigla_PB_fundo_claro.png" alt="Logo UFSC" class="header-logo">
+        <div class="header-info">
+          <p><strong>Universidade Federal de Santa Catarina</strong></p>
+          <p>Hospital Universitário Polydoro Ernani de São Thiago</p>
+        </div>
+      </div>
+      <div class="title">RELATÓRIO MÉDICO</div>
+      <div class="field-row">
+        <label class="field-label">Paciente:</label>
+        <input type="text" class="input-field">
+        <label class="field-label" style="margin-left: 20px;">Data de nascimento:</label>
+        <input type="text" class="input-field" style="max-width: 110px;" placeholder="  /  /  ">
+      </div>
+      <div class="field-row">
+        <label class="field-label">Diagnóstico / CID:</label>
+        <input type="text" class="input-field">
+      </div>
+      <label class="field-label" style="display: block; margin-top: 10px;">Histórico, evolução clínica e conduta:</label>
+      <textarea class="prescription-area" placeholder="Relatório..."></textarea>
+      <div class="footer">
+        <div class="date-box">
+          <label class="field-label">Data:</label>
+          <input type="text" class="input-field" style="width: 80px;">
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <span class="signature-label">Assinatura e carimbo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openTab(evt, tabName) {
+    var i, tabcontent, navbtns;
+
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+
+    navbtns = document.getElementsByClassName("nav-btn");
+    for (i = 0; i < navbtns.length; i++) {
+      navbtns[i].className = navbtns[i].className.replace(" active", "");
+    }
+
+    document.getElementById(tabName).style.display = "flex";
+    evt.currentTarget.className += " active";
+  }
+</script>
+
+</body>
+</html>
